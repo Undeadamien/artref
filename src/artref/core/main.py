@@ -1,4 +1,4 @@
-from core.sources import scryfall, wallhaven
+from artref.core.sources import scryfall, wallhaven
 
 
 def fetch(source: str):

@@ -1,6 +1,6 @@
 import typer
 
-from core.main import fetch
+from artref.core.main import fetch
 
 app = typer.Typer()
 
