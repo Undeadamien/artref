@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 requires-python = ">=3.7"
 dependencies = [
+  "aiocache",
+  "aiohttp",
+  "diskcache",
   "typer",
 ]
 
