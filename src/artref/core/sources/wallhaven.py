@@ -4,10 +4,9 @@ from typing import cast
 import aiohttp
 import diskcache
 
-URL = "https://wallhaven.cc/api/v1/search"
-EXPIRE = 24 * 60 * 60
+from artref.core.config import CACHE_DIR, CACHE_EXPIRE, WALLHAVEN_URL
 
-cache = diskcache.Cache("./cache")
+cache = diskcache.Cache(CACHE_DIR)
 
 
 async def fetch_page(params: dict) -> dict | None:
@@ -18,19 +17,19 @@ async def fetch_page(params: dict) -> dict | None:
 
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.get(URL, params=params) as res:
+            async with session.get(WALLHAVEN_URL, params=params) as res:
                 res.raise_for_status()
                 data = await res.json()
-                await asyncio.to_thread(cache.set, key, data, EXPIRE)
+                await asyncio.to_thread(cache.set, key, data, CACHE_EXPIRE)
                 return data
         except Exception as e:
             print("Error fetching page:", e)
             return None
 
 
-async def fetch() -> list[dict]:
+async def fetch(query: str) -> list[dict]:
     data = []
-    params = {"q": "guweiz"}
+    params = {"q": query}
 
     first_page = await fetch_page(params)
     if not first_page:
@@ -47,8 +46,3 @@ async def fetch() -> list[dict]:
             data.extend(res["data"])
 
     return data
-
-
-if __name__ == "__main__":
-    all_data = asyncio.run(fetch())
-    print(f"Fetched {len(all_data)} wallpapers")
