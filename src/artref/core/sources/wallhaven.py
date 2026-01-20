@@ -49,7 +49,7 @@ async def fetch(query: str) -> list[ImageAPI]:
 
     images = []
     for d in data:
-        image = ImageAPI("wallhaven", d["id"])
+        image = ImageAPI("wallhaven", d["id"], d["path"], origin=d["source"])
         images.append(image)
 
     return images

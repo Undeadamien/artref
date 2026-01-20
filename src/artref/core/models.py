@@ -1,12 +1,12 @@
+from dataclasses import dataclass
 from typing import Optional
 
 
+@dataclass
 class ImageAPI:
-    def __init__(self, source: str, id: str, *, artist: Optional[str] = None):
-        self.source: str = source
-        self.id: str = id
+    source: str
+    id: str
+    path: str
 
-        self.artist: Optional[str] = artist
-
-    def __repr__(self):
-        return repr(vars(self))
+    artist: Optional[str] = None
+    origin: Optional[str] = None  # original source, example: twitter,...
