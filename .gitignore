@@ -1,6 +1,7 @@
 *.egg-info
+*.json
+*.sqlite
 .venv
 __pycache__
-venv
-*.sqlite
 cache
+venv

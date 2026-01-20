@@ -1,4 +1,5 @@
 import asyncio
+from pprint import pprint
 
 import typer
 
@@ -9,12 +10,14 @@ app = typer.Typer()
 
 @app.command()
 def scryfall(query: str):
-    typer.echo(asyncio.run(fetch("scryfall", query)))
+    result = asyncio.run(fetch("scryfall", query))
+    pprint(result)
 
 
 @app.command()
 def wallhaven(query: str):
-    typer.echo(asyncio.run(fetch("wallhaven", query)))
+    result = asyncio.run(fetch("wallhaven", query))
+    pprint(result)
 
 
 def main():

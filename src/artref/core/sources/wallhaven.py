@@ -5,6 +5,7 @@ import aiohttp
 import diskcache
 
 from artref.core.config import CACHE_DIR, CACHE_EXPIRE, WALLHAVEN_URL
+from artref.core.models import ImageAPI
 
 cache = diskcache.Cache(CACHE_DIR)
 
@@ -15,6 +16,7 @@ async def fetch_page(params: dict) -> dict | None:
     if cached_results:
         return cast(dict, cached_results)  # note: to silence the LSP
 
+    # todo: implement a retry logic
     async with aiohttp.ClientSession() as session:
         try:
             async with session.get(WALLHAVEN_URL, params=params) as res:
@@ -23,11 +25,11 @@ async def fetch_page(params: dict) -> dict | None:
                 await asyncio.to_thread(cache.set, key, data, CACHE_EXPIRE)
                 return data
         except Exception as e:
-            print("Error fetching page:", e)
+            print("Error:", e)
             return None
 
 
-async def fetch(query: str) -> list[dict]:
+async def fetch(query: str) -> list[ImageAPI]:
     data = []
     params = {"q": query}
 
@@ -45,4 +47,9 @@ async def fetch(query: str) -> list[dict]:
         if res:
             data.extend(res["data"])
 
-    return data
+    images = []
+    for d in data:
+        image = ImageAPI("wallhaven", d["id"])
+        images.append(image)
+
+    return images

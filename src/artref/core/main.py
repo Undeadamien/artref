@@ -1,12 +1,8 @@
-from typing import Awaitable, Protocol
+import random
 
 from artref.core.config import DEFAULT_COUNT
 from artref.core.sources import scryfall, wallhaven
-
-
-class FetchFunction(Protocol):
-    def __call__(self, query: str) -> Awaitable[list[dict]]: ...
-
+from artref.core.types import FetchFunction
 
 SOURCES: dict[str, FetchFunction] = {
     "scryfall": scryfall.fetch,
@@ -19,6 +15,8 @@ async def fetch(source: str, query: str, count: int = DEFAULT_COUNT):
     if not api_fetch:
         return "The source does not exist."
 
-    print(count)
     res = await api_fetch(query)
+
+    # todo: decide how to handle len(res) < count
+    res = random.sample(res, min(count, len(res)))
     return res
