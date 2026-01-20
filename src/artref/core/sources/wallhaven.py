@@ -40,6 +40,7 @@ async def fetch(query: str) -> list[ImageAPI]:
     data.extend(first_page["data"])
     last_page = first_page["meta"]["last_page"]
 
+    # todo: add a semaphore
     tasks = [fetch_page({**params, "page": i}) for i in range(2, last_page + 1)]
     results = await asyncio.gather(*tasks)
 
