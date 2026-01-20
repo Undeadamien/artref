@@ -7,7 +7,7 @@ cd "$(dirname "$0")" || exit 0
 NAME_SESSION="artref"
 PROJECT_DIR="$(pwd)"
 
-if tmux has-session -t "$NAME_SESSION"; then
+if tmux has-session -t "$NAME_SESSION" 2>/dev/null; then
     tmux kill-session -t "$NAME_SESSION"
 fi
 
