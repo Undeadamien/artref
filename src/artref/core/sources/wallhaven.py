@@ -8,18 +8,19 @@ from artref.core.config import CACHE_DIR, CACHE_EXPIRE, WALLHAVEN_URL
 from artref.core.models import ImageAPI
 
 cache = diskcache.Cache(CACHE_DIR)
+route = f"{WALLHAVEN_URL}/search"
 
 
 async def fetch_page(params: dict) -> dict | None:
     key = str(params)
     cached_results = await asyncio.to_thread(cache.get, key)
     if cached_results:
-        return cast(dict, cached_results)  # note: to silence the LSP
+        return cast(dict, cached_results)  # note: silence the LSP
 
     # todo: implement a retry logic
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.get(WALLHAVEN_URL, params=params) as res:
+            async with session.get(route, params=params) as res:
                 res.raise_for_status()
                 data = await res.json()
                 await asyncio.to_thread(cache.set, key, data, CACHE_EXPIRE)
@@ -29,6 +30,7 @@ async def fetch_page(params: dict) -> dict | None:
             return None
 
 
+# todo: find a way to limit the request to 45 per minute
 async def fetch(query: str) -> list[ImageAPI]:
     data = []
     params = {"q": query}
