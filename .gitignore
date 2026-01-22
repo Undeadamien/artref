@@ -1,8 +1,9 @@
 *.egg-info
 *.json
 *.sqlite
+.env
 .venv
 __pycache__
 cache
-venv
 downloads
+venv
