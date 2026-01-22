@@ -8,6 +8,11 @@ from artref.core.models import Reference
 route = f"{WALLHAVEN_URL}/search"
 
 
+def createReference(data: dict):
+    reference = Reference("wallhaven", data["id"], data["path"], origin=data["source"])
+    return reference
+
+
 async def fetch_page(session: aiohttp.ClientSession, params: dict) -> dict | None:
     try:
         async with session.get(route, params=params) as res:
@@ -35,8 +40,6 @@ async def fetch(query: str, count: int) -> list[Reference]:
             page += 1
 
     data = random.sample(data, min(count, len(data)))
-    images = [
-        Reference("wallhaven", d["id"], d["path"], origin=d["source"]) for d in data
-    ]
+    images = [createReference(d) for d in data]
 
     return images
