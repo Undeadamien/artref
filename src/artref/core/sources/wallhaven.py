@@ -1,58 +1,42 @@
-import asyncio
-from typing import cast
+import random
 
 import aiohttp
-import diskcache
 
-from artref.core.config import CACHE_DIR, CACHE_EXPIRE, WALLHAVEN_URL
-from artref.core.models import ImageAPI
+from artref.core.config import WALLHAVEN_URL
+from artref.core.models import Reference
 
-cache = diskcache.Cache(CACHE_DIR)
 route = f"{WALLHAVEN_URL}/search"
 
 
-async def fetch_page(params: dict) -> dict | None:
-    key = str(params)
-    cached_results = await asyncio.to_thread(cache.get, key)
-    if cached_results:
-        return cast(dict, cached_results)  # note: silence the LSP
-
-    # todo: implement a retry logic
-    async with aiohttp.ClientSession() as session:
-        try:
-            async with session.get(route, params=params) as res:
-                res.raise_for_status()
-                data = await res.json()
-                await asyncio.to_thread(cache.set, key, data, CACHE_EXPIRE)
-                return data
-        except Exception as e:
-            print("Error:", e)
-            return None
+async def fetch_page(session: aiohttp.ClientSession, params: dict) -> dict | None:
+    try:
+        async with session.get(route, params=params) as res:
+            res.raise_for_status()
+            data = await res.json()
+            return data
+    except Exception as e:
+        print("Error:", e)
+        return None
 
 
-# todo: find a way to limit the request to 45 per minute
-async def fetch(query: str) -> list[ImageAPI]:
+async def fetch(query: str, count: int) -> list[Reference]:
+    params = {"q": query, "sorting": "random"}
     data = []
-    params = {"q": query}
+    page = 1
 
-    first_page = await fetch_page(params)
-    if not first_page:
-        return []
+    async with aiohttp.ClientSession() as session:
+        while len(data) < count:
+            page_data = await fetch_page(session, {**params, "page": page})
+            if not page_data or not page_data["data"]:
+                break
+            data.extend(page_data["data"])
+            if page >= page_data["meta"]["last_page"]:
+                break
+            page += 1
 
-    data.extend(first_page["data"])
-    last_page = first_page["meta"]["last_page"]
-
-    # todo: add a semaphore
-    tasks = [fetch_page({**params, "page": i}) for i in range(2, last_page + 1)]
-    results = await asyncio.gather(*tasks)
-
-    for res in results:
-        if res:
-            data.extend(res["data"])
-
-    images = []
-    for d in data:
-        image = ImageAPI("wallhaven", d["id"], d["path"], origin=d["source"])
-        images.append(image)
+    data = random.sample(data, min(count, len(data)))
+    images = [
+        Reference("wallhaven", d["id"], d["path"], origin=d["source"]) for d in data
+    ]
 
     return images

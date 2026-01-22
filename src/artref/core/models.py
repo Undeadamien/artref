@@ -3,7 +3,7 @@ from typing import Optional
 
 
 @dataclass
-class ImageAPI:
+class Reference:
     source: str
     id: str
     path: str

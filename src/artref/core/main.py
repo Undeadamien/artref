@@ -15,8 +15,5 @@ async def fetch(source: str, query: str, count: int = DEFAULT_COUNT):
     if not api_fetch:
         return "The source does not exist."
 
-    res = await api_fetch(query)
-
-    # todo: decide how to handle len(res) < count
-    res = random.sample(res, min(count, len(res)))
+    res = await api_fetch(query, count)
     return res
