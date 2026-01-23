@@ -1,2 +1,39 @@
-def main():
-    print("Hello from the API")
+from typing import Annotated, List, Literal
+
+import pydantic
+from fastapi import FastAPI, HTTPException, Query
+from pydantic import BaseModel, Field
+
+from artref.core.config import DEFAULT_COUNT
+from artref.core.main import fetch as core_fetch
+from artref.core.models import Reference
+
+
+@pydantic.dataclasses.dataclass
+class ImageResponse(Reference):
+    pass
+
+
+class FetchParams(BaseModel):
+    source: Literal["scryfall", "wallhaven", "unsplash"]
+    query: str
+    count: int = Field(DEFAULT_COUNT, ge=1, le=10)
+
+
+app = FastAPI()
+
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}
+
+
+@app.get("/fetch", response_model=List[ImageResponse])
+async def fetch_images(params: Annotated[FetchParams, Query()]):
+    try:
+        images = await core_fetch(params.source, params.query, params.count)
+        if not images:
+            raise HTTPException(status_code=404, detail="No images found")
+        return [ImageResponse(**img.__dict__) for img in images]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
