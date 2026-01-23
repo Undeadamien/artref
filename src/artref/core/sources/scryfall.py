@@ -78,8 +78,11 @@ async def fetch(query: str, count: int) -> list[Reference]:
             images = [ref for ref in images if ref]  # tmp: clear the None
             return images
 
+        retry = 3  # tmp: fail safe
         seen = set()
         while len(seen) < count:
+            if retry <= 0:  # tmp: fail safe
+                break
             tasks = [fetch_random(session, params) for _ in range(count - len(seen))]
             batch = await asyncio.gather(*tasks)
 
@@ -89,6 +92,7 @@ async def fetch(query: str, count: int) -> list[Reference]:
 
                 reference = createReference(data)
                 if not reference:
+                    retry -= 1  # tmp: fail safe
                     continue
                 seen.add(data["id"])
 
