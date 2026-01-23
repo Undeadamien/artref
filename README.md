@@ -1,33 +1,47 @@
 # artref
 
-Artref is a Python tool to search and download images references from online image APIs.
+artref is a Python tool to search and download image references from online APIs.
 
-## Install
+## Install / Setup
+
+Install the cli globally using `pipx`
 
 ```
+pipx ensurepath
 pipx install .
 ```
 
-This will give you access to the `artref` command globaly.
-
 ## Usage
 
-```
-artref <source> <query>
-```
+**CLI**
 
-or
+> Check the query syntax in the docs for each source
 
 ```
-artref help
+artref wallhaven "guweiz"
+artref scryfall "art:magalie"
 ```
+
+**API**
+
+> Not yet implemented
 
 ## Todo
 
-- Scryfall support
-- Unsplash support
+**General:**
 
-## Ressources
+- [ ] Implement the API with FastAPI
+- [ ] Document the CLI part
+- [ ] Add more logging
+
+**Sources:**
+
+- [x] Wallhaven support
+- [ ] Scryfall support
+  - [ ] Handle the different card layout
+- [ ] Unsplash support
+
+## Resources
 
 Scryfall: https://scryfall.com/docs/api  
 Unsplash: https://unsplash.com/documentation  
