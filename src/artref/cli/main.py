@@ -5,6 +5,7 @@ from pprint import pprint
 import aiohttp
 import typer
 
+from artref.core.logging import configure_logging
 from artref.core.main import fetch
 from artref.core.models import Reference
 from artref.core.utils import download_image
@@ -40,4 +41,5 @@ def wallhaven(query: str):
 
 
 def main():
+    configure_logging()
     app()

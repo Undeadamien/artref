@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import random
 from typing import Optional, cast
 
@@ -8,6 +9,7 @@ import diskcache
 from artref.core.config import CACHE_DIR, CACHE_EXPIRE, SCRYFALL_URL
 from artref.core.models import Reference
 
+logger = logging.getLogger(__name__)
 cache = diskcache.Cache(CACHE_DIR)
 route_search = f"{SCRYFALL_URL}/cards/search"
 route_random = f"{SCRYFALL_URL}/cards/random"
@@ -25,7 +27,7 @@ def createReference(data: dict) -> Optional[Reference]:
             artist=data["artist"],
         )
     except:
-        pass
+        logging.warning("Skipping a card with an unsupported layout")
     return reference
 
 
@@ -42,7 +44,7 @@ async def fetch_search(session: aiohttp.ClientSession, params: dict):
             await asyncio.to_thread(cache.set, key, data, CACHE_EXPIRE)
             return data
     except Exception as e:
-        print("Error:", e)
+        logger.exception(e)
         return None
 
 
@@ -53,7 +55,7 @@ async def fetch_random(session: aiohttp.ClientSession, params: dict):
             data = await res.json()
             return data
     except Exception as e:
-        print("Error:", e)
+        logger.exception(e)
         return None
 
 

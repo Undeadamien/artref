@@ -1,3 +1,4 @@
+import logging
 import random
 
 import aiohttp
@@ -5,6 +6,7 @@ import aiohttp
 from artref.core.config import WALLHAVEN_URL
 from artref.core.models import Reference
 
+logger = logging.getLogger(__name__)
 route = f"{WALLHAVEN_URL}/search"
 
 
@@ -20,7 +22,7 @@ async def fetch_page(session: aiohttp.ClientSession, params: dict) -> dict | Non
             data = await res.json()
             return data
     except Exception as e:
-        print("Error:", e)
+        logger.exception(e)
         return None
 
 
