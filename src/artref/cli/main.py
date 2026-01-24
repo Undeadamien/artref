@@ -27,7 +27,7 @@ async def download_images(images: list[Reference], folder: Path):
 @app.command()
 def scryfall(query: str):
     result = asyncio.run(fetch("scryfall", query))
-    files = asyncio.run(download_images(result, Path("./downloads")))
+    files = asyncio.run(download_images(result, Path.cwd()))
     pprint(result)
     pprint(files)
 
@@ -35,7 +35,7 @@ def scryfall(query: str):
 @app.command()
 def wallhaven(query: str):
     result = asyncio.run(fetch("wallhaven", query))
-    files = asyncio.run(download_images(result, Path("./downloads")))
+    files = asyncio.run(download_images(result, Path.cwd()))
     pprint(result)
     pprint(files)
 
