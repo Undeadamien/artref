@@ -7,11 +7,13 @@ dependencies = [
   "aiocache",
   "aiohttp",
   "diskcache",
+  "fastapi",
   "typer",
+  "uvicorn",
 ]
 
 [project.scripts]
-artref = "artref.cli.main:main"
+artref = "artref.main:main"
 
 [build-system]
 requires = ["setuptools", "wheel"]
