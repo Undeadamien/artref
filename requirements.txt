@@ -5,7 +5,6 @@ aiosignal==1.4.0
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.12.1
--e git+ssh://git@github.com/Undeadamien/artref@8e68181bd1014a16f5a9b5dc40d397b03921665b#egg=artref
 attrs==25.4.0
 certifi==2026.1.4
 click==8.3.1
