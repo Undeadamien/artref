@@ -8,4 +8,5 @@ WALLHAVEN_URL = "https://wallhaven.cc/api/v1"
 CACHE_DIR = Path.home() / ".cache" / "artref"
 CACHE_EXPIRE = 7 * 24 * 60 * 60  # 7 days
 
+# todo: consider a max count global/local
 DEFAULT_COUNT = 5

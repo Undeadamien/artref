@@ -7,6 +7,7 @@ dependencies = [
   "aiocache",
   "aiohttp",
   "diskcache",
+  "dotenv",
   "fastapi",
   "typer",
   "uvicorn",

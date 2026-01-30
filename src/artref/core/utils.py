@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import aiohttp
@@ -10,3 +11,10 @@ async def download_image(session: aiohttp.ClientSession, url: str, dst: Path):
         data = await res.read()
         dst.write_bytes(data)
     return dst
+
+
+def require_env(key: str) -> str:
+    value = os.getenv(key)
+    if value is None:
+        raise RuntimeError("Missing env variable: 'key'")
+    return value

@@ -16,10 +16,15 @@ app = typer.Typer()
 async def download_images(images: list[Reference], folder: Path):
     # todo: handle the filename prior to this
     async with aiohttp.ClientSession() as session:
-        tasks = [
-            download_image(session, img.path, folder / f"{img.source}_{img.id}")
-            for img in images
-        ]
+        tasks = []
+        for img in images:
+            filepath = folder / f"{img.source}_{img.id}"  # todo: a proper extension
+            tasks.append(download_image(session, img.path, filepath))
+
+            # todo: extract this part
+            if img.download_location and img.api_key:
+                session.get(img.download_location, params={"client_id": img.api_key})
+
         saved = await asyncio.gather(*tasks)
     return saved
 
@@ -35,6 +40,14 @@ def scryfall(query: str):
 @app.command()
 def wallhaven(query: str):
     result = asyncio.run(fetch("wallhaven", query))
+    files = asyncio.run(download_images(result, Path.cwd()))
+    pprint(result)
+    pprint(files)
+
+
+@app.command()
+def unsplash(query: str):
+    result = asyncio.run(fetch("unsplash", query))
     files = asyncio.run(download_images(result, Path.cwd()))
     pprint(result)
     pprint(files)
