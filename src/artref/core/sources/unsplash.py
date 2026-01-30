@@ -1,15 +1,9 @@
 import logging
 
 import aiohttp
-from dotenv import load_dotenv
 
-from artref.core.config import UNSPLASH_URL
+from artref.core.config import UNSPLASH_KEY, UNSPLASH_URL
 from artref.core.models import Reference
-from artref.core.utils import require_env
-
-load_dotenv()
-
-UNSPLASH_KEY = require_env("UNSPLASH_KEY")
 
 logger = logging.getLogger(__name__)
 route = f"{UNSPLASH_URL}/photos/random"
@@ -24,7 +18,6 @@ def createReference(data: dict) -> Reference:
         data["urls"]["regular"],
         artist=data["user"]["name"],
         download_location=data["links"]["download_location"],
-        api_key=UNSPLASH_KEY,
     )
     return reference
 
