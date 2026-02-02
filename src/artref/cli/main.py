@@ -1,17 +1,19 @@
 import asyncio
+import logging
 from pathlib import Path
-from pprint import pprint
 
 import aiohttp
 import typer
 
 from artref.core.config import UNSPLASH_KEY
 from artref.core.logging import configure_logging
-from artref.core.main import fetch
+from artref.core.main import SOURCES, fetch
 from artref.core.models import Reference
 from artref.core.utils import download_image
 
 app = typer.Typer()
+configure_logging()
+logger = logging.getLogger(__name__)
 
 
 async def download_images(images: list[Reference], folder: Path):
@@ -19,7 +21,7 @@ async def download_images(images: list[Reference], folder: Path):
     async with aiohttp.ClientSession() as session:
         tasks = []
         for img in images:
-            filepath = folder / f"{img.source}_{img.id}"  # todo: a proper extension
+            filepath = folder / f"{img.source}_{img.id}"  # todo: add a proper extension
             tasks.append(download_image(session, img.path, filepath))
 
             # note: might need to extract if more sources need this
@@ -34,30 +36,20 @@ async def download_images(images: list[Reference], folder: Path):
     return saved
 
 
-@app.command()
-def scryfall(query: str):
-    result = asyncio.run(fetch("scryfall", query))
-    files = asyncio.run(download_images(result, Path.cwd()))
-    pprint(result)
-    pprint(files)
+def run_source(source: str, query: str):
+    results = asyncio.run(fetch(source, query))
+    logger.info("Fetched %s image from %s", len(results), source)
+    files = asyncio.run(download_images(results, Path.cwd()))
+    logger.info("Downloaded %s files to %s", len(files), Path.cwd())
 
 
-@app.command()
-def wallhaven(query: str):
-    result = asyncio.run(fetch("wallhaven", query))
-    files = asyncio.run(download_images(result, Path.cwd()))
-    pprint(result)
-    pprint(files)
-
-
-@app.command()
-def unsplash(query: str):
-    result = asyncio.run(fetch("unsplash", query))
-    files = asyncio.run(download_images(result, Path.cwd()))
-    pprint(result)
-    pprint(files)
+for source in SOURCES:
+    app.command(name=source)(lambda query, src=source: run_source(src, query))
 
 
 def main():
-    configure_logging()
     app()
+
+
+if __name__ == "__main__":
+    main()
