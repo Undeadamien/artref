@@ -17,14 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 async def download_images(images: list[Reference], folder: Path):
-    # todo: handle the filename prior to this
     async with aiohttp.ClientSession() as session:
         tasks = []
         for img in images:
-            filepath = folder / f"{img.source}_{img.id}"  # todo: add a proper extension
+            filepath = folder / f"{img.source}_{img.id}"
             tasks.append(download_image(session, img.path, filepath))
 
-            # note: might need to extract if more sources need this
+            # note: might need to be extracted if more sources need this
             if not img.download_location:
                 continue
             if img.source == "unsplash":
