@@ -11,7 +11,12 @@ route = f"{WALLHAVEN_URL}/search"
 
 
 def createReference(data: dict):
-    reference = Reference("wallhaven", data["id"], data["path"], origin=data["source"])
+    reference = Reference(
+        "wallhaven",
+        data["id"],
+        data["path"],
+        origin=data.get("source", ""),
+    )
     return reference
 
 

@@ -1,17 +1,28 @@
 import asyncio
+import json
 import logging
+import sys
+from dataclasses import asdict
+from datetime import datetime
 from pathlib import Path
+from typing import Annotated
 
 import aiohttp
 import typer
 
-from artref.core.config import UNSPLASH_KEY
+from artref.core.config import (
+    COUNT_DEFAULT,
+    COUNT_MAX,
+    COUNT_MIN,
+    FILENAME_LOG,
+    UNSPLASH_KEY,
+)
 from artref.core.logging import configure_logging
-from artref.core.main import SOURCES, fetch
+from artref.core.main import fetch
 from artref.core.models import Reference
 from artref.core.utils import download_image
 
-app = typer.Typer()
+app = typer.Typer(no_args_is_help=True)
 configure_logging()
 logger = logging.getLogger(__name__)
 
@@ -35,15 +46,44 @@ async def download_images(images: list[Reference], folder: Path):
     return saved
 
 
-def run_source(source: str, query: str):
-    results = asyncio.run(fetch(source, query))
-    logger.info("Fetched %s image from %s", len(results), source)
+def run_source(source: str, query: str, count: int):
+    results = asyncio.run(fetch(source, query, count))
+    typer.echo(f"Fetched {len(results)} image from {source}")
     files = asyncio.run(download_images(results, Path.cwd()))
-    logger.info("Downloaded %s files to %s", len(files), Path.cwd())
+    typer.echo(f"Downloaded {len(files)} files to {Path.cwd()}")
+    filepath = Path.cwd() / f"artref_{datetime.now().strftime('%y%m%d%H%M%S')}.json"
+    with open(filepath, "w") as file:
+        json.dump([asdict(ref) for ref in results], file)
+    typer.echo(f"Log saved: '{filepath}'")
 
 
-for source in SOURCES:
-    app.command(name=source)(lambda query, src=source: run_source(src, query))
+@app.command()
+def scryfall(
+    query: Annotated[
+        str, typer.Argument(help="Syntax: 'https://scryfall.com/docs/syntax'")
+    ],
+    count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
+):
+    """placeholder"""
+    run_source("scryfall", query, count)
+
+
+@app.command()
+def unsplash(
+    query: Annotated[str, typer.Argument(help="A single search term: 'flower'")],
+    count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
+):
+    """placeholder"""
+    run_source("unsplash", query, count)
+
+
+@app.command()
+def wallhaven(
+    query: Annotated[str, typer.Argument(help="placeholder")],
+    count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
+):
+    """placeholder"""
+    run_source("wallhaven", query, count)
 
 
 def main():

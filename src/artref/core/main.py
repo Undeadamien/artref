@@ -1,4 +1,4 @@
-from artref.core.config import DEFAULT_COUNT
+from artref.core.config import COUNT_DEFAULT
 from artref.core.sources import scryfall, unsplash, wallhaven
 from artref.core.types import FetchFunction
 
@@ -9,7 +9,7 @@ SOURCES: dict[str, FetchFunction] = {
 }
 
 
-async def fetch(source: str, query: str, count: int = DEFAULT_COUNT):
+async def fetch(source: str, query: str, count: int = COUNT_DEFAULT):
     api_fetch = SOURCES.get(source)
     if not api_fetch:
         return []

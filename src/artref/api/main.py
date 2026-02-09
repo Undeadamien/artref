@@ -4,7 +4,7 @@ import pydantic
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from artref.core.config import DEFAULT_COUNT
+from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN
 from artref.core.main import fetch as core_fetch
 from artref.core.models import Reference
 
@@ -17,7 +17,7 @@ class ImageResponse(Reference):
 class FetchParams(BaseModel):
     source: Literal["scryfall", "wallhaven", "unsplash"]
     query: str
-    count: int = Field(DEFAULT_COUNT, ge=1, le=10)
+    count: int = Field(COUNT_DEFAULT, ge=COUNT_MIN, le=COUNT_MAX)
 
 
 app = FastAPI()
