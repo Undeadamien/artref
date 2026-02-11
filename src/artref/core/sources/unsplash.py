@@ -16,8 +16,8 @@ def createReference(data: dict) -> Reference:
         "unsplash",
         data["id"],
         data["urls"]["regular"],
-        artist=data.get("user", {}).get("name", None),
-        download_location=data.get("links", {}).get("download_location", None),
+        artist=data.get("user", {}).get("name") or None,
+        download_location=data.get("links", {}).get("download_location") or None,
     )
     return reference
 

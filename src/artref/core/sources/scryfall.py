@@ -23,8 +23,8 @@ def createReference(data: dict) -> Optional[Reference]:
         reference = Reference(
             "scryfall",
             data["id"],
-            data.get("image_uris", {}).get("art_crop", None),
-            artist=data.get("artist", None),
+            data.get("image_uris", {}).get("art_crop") or "",  # todo: "" -> None
+            artist=data.get("artist") or None,
         )
     except:
         logging.warning("Skipping a card with an unsupported layout")

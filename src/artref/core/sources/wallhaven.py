@@ -15,7 +15,7 @@ def createReference(data: dict):
         "wallhaven",
         data["id"],
         data["path"],
-        origin=data.get("source", ""),
+        origin=data.get("source") or None,
     )
     return reference
 
