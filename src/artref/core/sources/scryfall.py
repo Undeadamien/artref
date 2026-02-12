@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import random
-from typing import Optional, cast
+from typing import cast
 
 import aiohttp
 import diskcache
@@ -15,20 +15,22 @@ route_search = f"{SCRYFALL_URL}/cards/search"
 route_random = f"{SCRYFALL_URL}/cards/random"
 
 
-# todo: find a way to handle the different layouts
-# https://scryfall.com/docs/api/layouts
-def createReference(data: dict) -> Optional[Reference]:
-    reference = None
-    try:
-        reference = Reference(
+# todo: improve the way 'multi-faced' cards are handled
+def createReference(data: dict) -> Reference:
+    if "image_uris" in data:
+        return Reference(
             "scryfall",
             data["id"],
-            data.get("image_uris", {}).get("art_crop") or "",  # todo: "" -> None
+            data.get("image_uris", {}).get("art_crop"),
             artist=data.get("artist") or None,
         )
-    except:
-        logging.warning("Skipping a card with an unsupported layout")
-    return reference
+    face = random.choice(data["card_faces"])
+    return Reference(
+        "scryfall",
+        f"{data['id']}",
+        face.get("image_uris", {}).get("art_crop"),
+        artist=face.get("artist") or data.get("artist") or None,
+    )
 
 
 async def fetch_search(session: aiohttp.ClientSession, params: dict):
