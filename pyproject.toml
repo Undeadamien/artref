@@ -9,6 +9,7 @@ dependencies = [
   "diskcache",
   "dotenv",
   "fastapi",
+  "pytest",
   "typer",
   "uvicorn",
 ]
@@ -19,3 +20,7 @@ artref = "artref.main:main"
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest]
+pythonpath = ["src"]
+testpaths = ["tests"]
