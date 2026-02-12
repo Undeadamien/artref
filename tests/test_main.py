@@ -6,45 +6,61 @@ from artref.core.sources import scryfall, unsplash, wallhaven
 def test_wallhaven_createReference():
     reference = wallhaven.createReference(
         {
-            "id": "6lm6zq",
-            "path": "https://w.wallhaven.cc/full/6l/wallhaven-6lm6zq.jpg",
-            "source": "https://x.com/ttguweiz/status/2016143661697036755",
+            "id": "id",
+            "path": "path",
+            "source": "source",
         }
     )
     assert reference.source == "wallhaven"
-    assert reference.id == "6lm6zq"
-    assert reference.path == "https://w.wallhaven.cc/full/6l/wallhaven-6lm6zq.jpg"
-    assert reference.origin == "https://x.com/ttguweiz/status/2016143661697036755"
+    assert reference.id == "id"
+    assert reference.path == "path"
+    assert reference.origin == "source"
     assert "" not in asdict(reference).values()
 
 
-# todo: correct the missing aspect of scryfall.createReference
-# todo: add a test for all the possible layout/structure
-# note: https://scryfall.com/docs/api/layouts
 def test_scryfall_createReference():
-    pass
+    reference = scryfall.createReference(
+        {
+            "id": "id",
+            "image_uris": {"art_crop": "art_crop"},
+            "artist": "artist",
+        }
+    )
+    assert reference.source == "scryfall"
+    assert reference.id == "id"
+    assert reference.path == "art_crop"
+    assert reference.artist == "artist"
+    assert "" not in asdict(reference).values()
+
+    reference = scryfall.createReference(
+        {
+            "id": "id",
+            "card_faces": [
+                {"image_uris": {"art_crop": "0"}, "artist": "0"},
+                {"image_uris": {"art_crop": "1"}, "artist": "1"},
+            ],
+        }
+    )
+    assert reference.source == "scryfall"
+    assert reference.id == "id"
+    assert reference.path in ["0", "1"]
+    assert reference.artist in ["0", "1"]
+    assert reference.path == reference.artist  # note: might need some change
+    assert "" not in asdict(reference).values()
 
 
 def test_unsplash_createReference():
     reference = unsplash.createReference(
         {
-            "id": "OnqVBXO3Bl0",
-            "urls": {
-                "regular": "https://images.unsplash.com/photo-1767290718965-e862984057a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NjExMDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE3Njk3NzUyNzF8&ixlib=rb-4.1.0&q=80&w=1080",
-            },
-            "links": {
-                "download_location": "https://api.unsplash.com/photos/OnqVBXO3Bl0/download?ixid=M3w4NjExMDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE3Njk3NzUyNzF8",
-            },
-            "user": {
-                "name": "Kristaps Ungurs",
-            },
+            "id": "id",
+            "urls": {"regular": "path"},
+            "links": {"download_location": "download_location"},
+            "user": {"name": "artist"},
         }
     )
     assert reference.source == "unsplash"
-    assert reference.id == "OnqVBXO3Bl0"
-    assert reference.artist == "Kristaps Ungurs"
-    assert (
-        reference.download_location
-        == "https://api.unsplash.com/photos/OnqVBXO3Bl0/download?ixid=M3w4NjExMDl8MHwxfHJhbmRvbXx8fHx8fHx8fDE3Njk3NzUyNzF8"
-    )
+    assert reference.id == "id"
+    assert reference.artist == "artist"
+    assert reference.path == "path"
+    assert reference.download_location == "download_location"
     assert "" not in asdict(reference).values()

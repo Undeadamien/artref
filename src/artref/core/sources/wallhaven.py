@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 route = f"{WALLHAVEN_URL}/search"
 
 
-def createReference(data: dict):
+def createReference(data: dict) -> Reference:
     reference = Reference(
         "wallhaven",
         data["id"],
