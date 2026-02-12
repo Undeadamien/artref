@@ -1,7 +1,6 @@
 import asyncio
 import json
 import logging
-import sys
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
@@ -10,13 +9,7 @@ from typing import Annotated
 import aiohttp
 import typer
 
-from artref.core.config import (
-    COUNT_DEFAULT,
-    COUNT_MAX,
-    COUNT_MIN,
-    FILENAME_LOG,
-    UNSPLASH_KEY,
-)
+from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN, UNSPLASH_KEY
 from artref.core.logging import configure_logging
 from artref.core.main import fetch
 from artref.core.models import Reference
@@ -52,6 +45,8 @@ def run_source(source: str, query: str, count: int):
     files = asyncio.run(download_images(results, Path.cwd()))
     typer.echo(f"Downloaded {len(files)} files to {Path.cwd()}")
     filepath = Path.cwd() / f"artref_{datetime.now().strftime('%y%m%d%H%M%S')}.json"
+    if not results:
+        return
     with open(filepath, "w") as file:
         json.dump([asdict(ref) for ref in results], file)
     typer.echo(f"Log saved: '{filepath}'")
