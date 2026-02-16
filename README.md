@@ -1,48 +1,86 @@
-# artref
+# ArtRef
 
-artref is a Python tool to search and download image references from online APIs.
+**ArtRef** is an asynchronous Python tool for fetching, organizing, and downloading image references from multiple sources efficiently.
 
-## Install / Setup
+**Motivation:**  
+Searching for image references across multiple platforms can be slow and repetitive.
+ArtRef centralizes this process, allowing you to quickly fetch, organize, and download images from multiple sources in a single workflow.
 
-Install the cli globally using `pipx`
+## Features
+
+- **Multi-source search**: Scryfall, Unsplash, Wallhaven
+- **Asynchronous**: Fast and efficient fetching
+- **CLI**: Typer for easy command-line usage
+- **API**: FastAPI server for programmatic access
+- **Disk caching**: Avoid repeated downloads
+- **Pluggable source system**: Add new image sources easily
+
+## Installation
+
+Install via pip:
+
+```bash
+pip install .
+```
+
+## Configuration
+
+Optional .env (**Unsplash** only):
 
 ```
-pipx ensurepath
-pipx install .
+UNSPLASH_KEY=
 ```
 
-## Usage
+Default config file:
 
-**CLI**
-
-> Check the query syntax in the docs for each source
-
+```bash
+./src/artref/core/config.py
 ```
+
+## CLI Usage
+
+> The syntax of the `query` argument depends on the source.
+
+```bash
+# Search 5 tree images on Unsplash
+artref unsplash "tree"
+
+# Search cards by artist on Scryfall
+artref scryfall "artist:magali"
+
+# Search images by Guweiz on Wallhaven
 artref wallhaven "guweiz"
-artref scryfall "art:magalie"
+
+# Show help
+artref --help
+artref wallhaven --help
 ```
 
-**API**
+> Downloaded images will appear in the current working directory.  
+> Each source generates a log file with metadata: `artref_YYMMDDHHMMSS.json`
 
-> Not yet implemented
+## API
 
-## Todo
+Start the server:
 
-**General:**
+```bash
+artref server
+```
 
-- [ ] Implement the API with FastAPI
-- [ ] Document the CLI part
-- [ ] Add more logging
+Example API request:
 
-**Sources:**
+```bash
+curl "http://127.0.0.1:8000/fetch?source=unsplash&query=example"
+```
 
-- [x] Wallhaven support
-- [ ] Scryfall support
-  - [ ] Handle the different card layout
-- [ ] Unsplash support
+> Using the **Unsplash API**, if you intend to download an image at `path`, please also make a request at `download_location`.  
+> For more information: [Unsplash API Guidelines](https://help.unsplash.com/en/articles/2511258-guideline-triggering-a-download)
 
-## Resources
+## Roadmap
 
-Scryfall: https://scryfall.com/docs/api  
-Unsplash: https://unsplash.com/documentation  
-WallHaven: https://wallhaven.cc/help/api
+- [ ] Add Docker support
+- [ ] Enhance error handling
+- [ ] Ensure Unsplash `download_location` is triggered correctly
+- [ ] Implement rate limiting and retry strategies
+- [ ] Improve documentation, removing the placeholders
+- [ ] Improve the API side
