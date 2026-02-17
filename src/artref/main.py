@@ -9,7 +9,7 @@ app.add_typer(app_cli)
 
 
 @app.command()
-def server(host: str = SERVER_ADDR, port: int = SERVER_PORT, reload: bool = False):
+def server(host: str = SERVER_ADDR, port: int = SERVER_PORT, reload: bool = True):
     """Run the server with uvicorn."""
     uvicorn.run("artref.api.main:app", host=host, port=port, reload=reload)
 
