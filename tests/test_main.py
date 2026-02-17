@@ -1,6 +1,7 @@
 from dataclasses import asdict
 
 from artref.core.sources import scryfall, unsplash, wallhaven
+from artref.core.types import Source
 
 
 def test_wallhaven_createReference():
@@ -11,7 +12,7 @@ def test_wallhaven_createReference():
             "source": "source",
         }
     )
-    assert reference.source == "wallhaven"
+    assert reference.source == Source.wallhaven
     assert reference.id == "id"
     assert reference.path == "path"
     assert reference.origin == "source"
@@ -26,7 +27,7 @@ def test_scryfall_createReference():
             "artist": "artist",
         }
     )
-    assert reference.source == "scryfall"
+    assert reference.source == Source.scryfall
     assert reference.id == "id"
     assert reference.path == "art_crop"
     assert reference.artist == "artist"
@@ -41,7 +42,7 @@ def test_scryfall_createReference():
             ],
         }
     )
-    assert reference.source == "scryfall"
+    assert reference.source == Source.scryfall
     assert reference.id == "id"
     assert reference.path in ["0", "1"]
     assert reference.artist in ["0", "1"]
@@ -58,7 +59,7 @@ def test_unsplash_createReference():
             "user": {"name": "artist"},
         }
     )
-    assert reference.source == "unsplash"
+    assert reference.source == Source.unsplash
     assert reference.id == "id"
     assert reference.artist == "artist"
     assert reference.path == "path"

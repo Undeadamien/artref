@@ -12,7 +12,7 @@ import typer
 from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN, UNSPLASH_KEY
 from artref.core.logging import configure_logging
 from artref.core.main import fetch
-from artref.core.models import Reference
+from artref.core.types import Reference, Source
 from artref.core.utils import download_image
 
 app = typer.Typer(no_args_is_help=True)
@@ -24,7 +24,7 @@ async def download_images(images: list[Reference], folder: Path):
     async with aiohttp.ClientSession() as session:
         tasks = []
         for img in images:
-            filepath = folder / f"{img.source}_{img.id}"
+            filepath = folder / f"{img.source.value}_{img.id}"
             tasks.append(download_image(session, img.path, filepath))
 
             # note: might need to be extracted if more sources need this
@@ -39,7 +39,7 @@ async def download_images(images: list[Reference], folder: Path):
     return saved
 
 
-def run_source(source: str, query: str, count: int):
+def run_source(source: Source, query: str, count: int):
     results = asyncio.run(fetch(source, query, count))
     typer.echo(f"Fetched {len(results)} image from {source}")
     files = asyncio.run(download_images(results, Path.cwd()))
@@ -60,7 +60,7 @@ def scryfall(
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
     """placeholder"""
-    run_source("scryfall", query, count)
+    run_source(Source.scryfall, query, count)
 
 
 @app.command()
@@ -69,7 +69,7 @@ def unsplash(
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
     """placeholder"""
-    run_source("unsplash", query, count)
+    run_source(Source.unsplash, query, count)
 
 
 @app.command()
@@ -78,7 +78,7 @@ def wallhaven(
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
     """placeholder"""
-    run_source("wallhaven", query, count)
+    run_source(Source.wallhaven, query, count)
 
 
 def main():

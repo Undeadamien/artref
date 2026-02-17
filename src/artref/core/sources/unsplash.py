@@ -3,7 +3,7 @@ import logging
 import aiohttp
 
 from artref.core.config import UNSPLASH_KEY, UNSPLASH_URL
-from artref.core.models import Reference
+from artref.core.types import Reference, Source
 
 logger = logging.getLogger(__name__)
 route = f"{UNSPLASH_URL}/photos/random"
@@ -13,7 +13,7 @@ route = f"{UNSPLASH_URL}/photos/random"
 # > https://help.unsplash.com/en/articles/2511245-unsplash-api-guidelines
 def createReference(data: dict) -> Reference:
     reference = Reference(
-        "unsplash",
+        Source.unsplash,
         data["id"],
         data["urls"]["regular"],
         artist=data.get("user", {}).get("name") or None,

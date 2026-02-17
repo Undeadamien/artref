@@ -4,7 +4,7 @@ import random
 import aiohttp
 
 from artref.core.config import WALLHAVEN_URL
-from artref.core.models import Reference
+from artref.core.types import Reference, Source
 
 logger = logging.getLogger(__name__)
 route = f"{WALLHAVEN_URL}/search"
@@ -12,7 +12,7 @@ route = f"{WALLHAVEN_URL}/search"
 
 def createReference(data: dict) -> Reference:
     reference = Reference(
-        "wallhaven",
+        Source.wallhaven,
         data["id"],
         data["path"],
         origin=data.get("source") or None,

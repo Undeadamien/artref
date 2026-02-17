@@ -7,7 +7,7 @@ import aiohttp
 import diskcache
 
 from artref.core.config import CACHE_DIR, CACHE_EXPIRE, SCRYFALL_URL
-from artref.core.models import Reference
+from artref.core.types import Reference, Source
 
 logger = logging.getLogger(__name__)
 cache = diskcache.Cache(CACHE_DIR)
@@ -19,14 +19,14 @@ route_random = f"{SCRYFALL_URL}/cards/random"
 def createReference(data: dict) -> Reference:
     if "image_uris" in data:
         return Reference(
-            "scryfall",
+            Source.scryfall,
             data["id"],
             data.get("image_uris", {}).get("art_crop"),
             artist=data.get("artist") or None,
         )
     face = random.choice(data["card_faces"])
     return Reference(
-        "scryfall",
+        Source.scryfall,
         f"{data['id']}",
         face.get("image_uris", {}).get("art_crop"),
         artist=face.get("artist") or data.get("artist") or None,

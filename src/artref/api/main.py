@@ -1,21 +1,15 @@
-from typing import Annotated, List, Literal
+from typing import Annotated, List
 
-import pydantic
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN
 from artref.core.main import fetch as core_fetch
-from artref.core.models import Reference
-
-
-@pydantic.dataclasses.dataclass
-class ImageResponse(Reference):
-    pass
+from artref.core.types import ImageResponse, Source
 
 
 class FetchParams(BaseModel):
-    source: Literal["scryfall", "wallhaven", "unsplash"]
+    source: Source
     query: str
     count: int = Field(COUNT_DEFAULT, ge=COUNT_MIN, le=COUNT_MAX)
 
@@ -25,7 +19,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello World"}
+    return {"message": "Hello World"}  # todo: replace with a proper message
 
 
 @app.get("/fetch", response_model=List[ImageResponse])
