@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from artref.core.utils import require_env
 
 load_dotenv()
-UNSPLASH_KEY = require_env("UNSPLASH_KEY")
 
 SCRYFALL_URL = "https://api.scryfall.com"
 UNSPLASH_URL = "https://api.unsplash.com"
@@ -22,3 +21,7 @@ COUNT_MIN = 1
 COUNT_MAX = 10
 
 FILENAME_LOG = "artref.json"
+
+
+def get_unsplash_key() -> str:
+    return require_env("UNSPLASH_KEY")

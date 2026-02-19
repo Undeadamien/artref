@@ -2,7 +2,7 @@ import logging
 
 import aiohttp
 
-from artref.core.config import UNSPLASH_KEY, UNSPLASH_URL
+from artref.core.config import UNSPLASH_URL, get_unsplash_key
 from artref.core.types import Reference, Source
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ def createReference(data: dict) -> Reference:
 
 
 async def fetch(query: str, count: int) -> list[Reference]:
-    params = {"query": query, "client_id": UNSPLASH_KEY, "count": count}
+    params = {"query": query, "client_id": get_unsplash_key(), "count": count}
 
     # todo: handle the pagination over 10 image and the max of 30
     async with aiohttp.ClientSession() as session:

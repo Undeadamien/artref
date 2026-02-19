@@ -9,7 +9,7 @@ from typing import Annotated
 import aiohttp
 import typer
 
-from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN, UNSPLASH_KEY
+from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN, get_unsplash_key
 from artref.core.logging import configure_logging
 from artref.core.main import fetch
 from artref.core.types import Reference, Source
@@ -30,9 +30,9 @@ async def download_images(images: list[Reference], folder: Path):
             # note: might need to be extracted if more sources need this
             if not img.download_location:
                 continue
-            if img.source == "unsplash":
+            if img.source == Source.unsplash:
                 await session.get(
-                    img.download_location, params={"client_id": UNSPLASH_KEY}
+                    img.download_location, params={"client_id": get_unsplash_key()}
                 )
 
         saved = await asyncio.gather(*tasks)
