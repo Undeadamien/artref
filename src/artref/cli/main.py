@@ -40,16 +40,22 @@ async def download_images(images: list[Reference], folder: Path):
 
 
 def run_source(source: Source, query: str, count: int):
+    timestamp = datetime.now().strftime("%y%m%d%H%M%S")
+    run_dir = Path.cwd() / f"artref_{timestamp}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+
     results = asyncio.run(fetch(source, query, count))
-    typer.echo(f"Fetched {len(results)} image from {source}")
-    files = asyncio.run(download_images(results, Path.cwd()))
-    typer.echo(f"Downloaded {len(files)} files to {Path.cwd()}")
-    filepath = Path.cwd() / f"artref_{datetime.now().strftime('%y%m%d%H%M%S')}.json"
+    typer.echo(f"Fetched {len(results)} image(s) from {source}")
+
     if not results:
         return
-    with open(filepath, "w") as file:
+
+    files = asyncio.run(download_images(results, run_dir))
+    typer.echo(f"Downloaded {len(files)} files to {run_dir}")
+
+    log_path = run_dir / "log.json"
+    with open(log_path, "w") as file:
         json.dump([asdict(ref) for ref in results], file)
-    typer.echo(f"Log saved: '{filepath}'")
 
 
 @app.command()
