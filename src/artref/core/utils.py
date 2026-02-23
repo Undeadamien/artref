@@ -11,8 +11,8 @@ async def download_image(session: aiohttp.ClientSession, url: str, dst: Path):
         res.raise_for_status()  # todo: handle the error
         data = await res.read()
         mime = res.headers.get("Content-Type", "")
-        ext = mimetypes.guess_extension(mime)
-        dst = dst.with_suffix(ext) if ext else dst  # todo: set a default ext?
+        ext = mimetypes.guess_extension(mime) or ".jpg"
+        dst = dst.with_suffix(ext)
         dst.write_bytes(data)
     return dst
 
