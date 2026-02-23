@@ -45,7 +45,7 @@ async def fetch_search(session: aiohttp.ClientSession, params: dict):
             data = await res.json()
             await asyncio.to_thread(cache.set, key, data, CACHE_EXPIRE)
             return data
-    except Exception as e:
+    except aiohttp.ClientError as e:
         logger.exception(e)
         return None
 
@@ -56,7 +56,7 @@ async def fetch_random(session: aiohttp.ClientSession, params: dict):
             res.raise_for_status()
             data = await res.json()
             return data
-    except Exception as e:
+    except aiohttp.ClientError as e:
         logger.exception(e)
         return None
 

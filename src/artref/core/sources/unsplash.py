@@ -26,9 +26,13 @@ async def fetch(query: str, count: int) -> list[Reference]:
     params = {"query": query, "client_id": get_unsplash_key(), "count": count}
 
     # todo: handle the pagination over 10 image and the max of 30
-    async with aiohttp.ClientSession() as session:
-        async with session.get(route, params=params) as res:
-            data = await res.json()
-            images = [createReference(d) for d in data]
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(route, params=params) as res:
+                res.raise_for_status()
+                data = await res.json()
+    except aiohttp.ClientError as e:
+        logger.exception(e)
+        return []
 
-            return images
+    return [createReference(d) for d in data]

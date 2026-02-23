@@ -26,7 +26,7 @@ async def fetch_page(session: aiohttp.ClientSession, params: dict) -> dict | Non
             res.raise_for_status()
             data = await res.json()
             return data
-    except Exception as e:
+    except aiohttp.ClientError as e:
         logger.exception(e)
         return None
 
