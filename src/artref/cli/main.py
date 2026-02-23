@@ -39,18 +39,18 @@ async def download_images(images: list[Reference], folder: Path):
     return saved
 
 
-def run_source(source: Source, query: str, count: int):
+async def run_source(source: Source, query: str, count: int):
     timestamp = datetime.now().strftime("%y%m%d%H%M%S")
     run_dir = Path.cwd() / f"artref_{timestamp}"
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    results = asyncio.run(fetch(source, query, count))
+    results = await fetch(source, query, count)
     typer.echo(f"Fetched {len(results)} image(s) from {source}")
 
     if not results:
         return
 
-    files = asyncio.run(download_images(results, run_dir))
+    files = await download_images(results, run_dir)
     typer.echo(f"Downloaded {len(files)} files to {run_dir}")
 
     log_path = run_dir / "log.json"
@@ -66,7 +66,7 @@ def scryfall(
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
     """placeholder"""
-    run_source(Source.scryfall, query, count)
+    asyncio.run(run_source(Source.scryfall, query, count))
 
 
 @app.command()
@@ -75,7 +75,7 @@ def unsplash(
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
     """placeholder"""
-    run_source(Source.unsplash, query, count)
+    asyncio.run(run_source(Source.unsplash, query, count))
 
 
 @app.command()
@@ -84,7 +84,7 @@ def wallhaven(
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
     """placeholder"""
-    run_source(Source.wallhaven, query, count)
+    asyncio.run(run_source(Source.wallhaven, query, count))
 
 
 def main():
