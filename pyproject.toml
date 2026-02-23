@@ -9,13 +9,15 @@ dependencies = [
   "diskcache",
   "dotenv",
   "fastapi",
-  "pytest",
   "typer",
   "uvicorn",
 ]
 
 [project.scripts]
 artref = "artref.main:main"
+
+[project.optional-dependencies]
+dev = ["pytest"]
 
 [build-system]
 requires = ["setuptools", "wheel"]
