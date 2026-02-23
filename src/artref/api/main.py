@@ -37,5 +37,5 @@ def list_sources():
 async def fetch_images(params: Annotated[FetchParams, Query()]):
     images = await core_fetch(params.source, params.query, params.count)
     if not images:
-        raise HTTPException(status_code=404, detail="No images found")
+        raise HTTPException(status_code=200, detail="No images found")
     return [ImageResponse(**img.__dict__) for img in images]
