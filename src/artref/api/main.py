@@ -1,3 +1,5 @@
+import logging
+from contextlib import asynccontextmanager
 from typing import Annotated, List
 
 from fastapi import FastAPI, HTTPException, Query
@@ -6,7 +8,10 @@ from pydantic import BaseModel, Field
 
 from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN
 from artref.core.main import fetch as core_fetch
+from artref.core.session import close_session
 from artref.core.types import ImageResponse, Source
+
+logger = logging.getLogger(__name__)
 
 
 class FetchParams(BaseModel):
@@ -15,7 +20,13 @@ class FetchParams(BaseModel):
     count: int = Field(COUNT_DEFAULT, ge=COUNT_MIN, le=COUNT_MAX)
 
 
-app = FastAPI(title="ArtRef", description="Image reference fetcher")
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    yield
+    await close_session()
+
+
+app = FastAPI(title="ArtRef", description="Image reference fetcher", lifespan=lifespan)
 
 
 @app.get("/", include_in_schema=False)

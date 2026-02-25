@@ -3,6 +3,7 @@ import logging
 import aiohttp
 
 from artref.core.config import UNSPLASH_URL, get_unsplash_key
+from artref.core.session import get_session
 from artref.core.types import Reference, Source
 
 logger = logging.getLogger(__name__)
@@ -11,7 +12,7 @@ route = f"{UNSPLASH_URL}/photos/random"
 
 # note: follow the API guide, must use the download_location for downloads
 # > https://help.unsplash.com/en/articles/2511245-unsplash-api-guidelines
-def createReference(data: dict) -> Reference:
+def _create_reference(data: dict) -> Reference:
     reference = Reference(
         Source.unsplash,
         data["id"],
@@ -27,12 +28,12 @@ async def fetch(query: str, count: int) -> list[Reference]:
 
     # todo: handle the pagination over 10 image and the max of 30
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(route, params=params) as res:
-                res.raise_for_status()
-                data = await res.json()
+        session = await get_session()
+        async with session.get(route, params=params) as res:
+            res.raise_for_status()
+            data = await res.json()
     except aiohttp.ClientError as e:
         logger.exception(e)
         return []
 
-    return [createReference(d) for d in data]
+    return [_create_reference(d) for d in data]

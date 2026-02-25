@@ -2,17 +2,19 @@ import logging
 import mimetypes
 import os
 from pathlib import Path
+from typing import Optional
 
 import aiohttp
+
+from artref.core.session import get_session
 
 logger = logging.getLogger(__name__)
 
 
-async def download_image(
-    session: aiohttp.ClientSession, url: str, dst: Path
-) -> Path | None:
+async def download_image(url: str, dst: Path) -> Optional[Path]:
     dst.parent.mkdir(parents=True, exist_ok=True)
     try:
+        session = await get_session()
         async with session.get(url) as res:
             res.raise_for_status()
             data = await res.read()

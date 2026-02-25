@@ -4,8 +4,8 @@ from artref.core.sources import scryfall, unsplash, wallhaven
 from artref.core.types import Source
 
 
-def test_wallhaven_createReference():
-    reference = wallhaven.createReference(
+def test_wallhaven_create_reference():
+    reference = wallhaven._create_reference(
         {
             "id": "id",
             "path": "path",
@@ -19,8 +19,8 @@ def test_wallhaven_createReference():
     assert "" not in asdict(reference).values()
 
 
-def test_scryfall_createReference():
-    reference = scryfall.createReference(
+def test_scryfall_create_reference():
+    reference = scryfall._create_reference(
         {
             "id": "id",
             "image_uris": {"art_crop": "art_crop"},
@@ -33,7 +33,7 @@ def test_scryfall_createReference():
     assert reference.artist == "artist"
     assert "" not in asdict(reference).values()
 
-    reference = scryfall.createReference(
+    reference = scryfall._create_reference(
         {
             "id": "id",
             "card_faces": [
@@ -50,8 +50,8 @@ def test_scryfall_createReference():
     assert "" not in asdict(reference).values()
 
 
-def test_unsplash_createReference():
-    reference = unsplash.createReference(
+def test_unsplash_create_reference():
+    reference = unsplash._create_reference(
         {
             "id": "id",
             "urls": {"regular": "path"},

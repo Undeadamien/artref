@@ -6,12 +6,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Annotated
 
-import aiohttp
 import typer
 
 from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN, get_unsplash_key
 from artref.core.logging import configure_logging
 from artref.core.main import fetch
+from artref.core.session import close_session, get_session
 from artref.core.types import Reference, Source
 from artref.core.utils import download_image
 
@@ -21,21 +21,21 @@ logger = logging.getLogger(__name__)
 
 
 async def download_images(images: list[Reference], folder: Path):
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for img in images:
-            filepath = folder / f"{img.source.value}_{img.id}"
-            tasks.append(download_image(session, img.path, filepath))
+    session = await get_session()
+    tasks = []
+    for img in images:
+        filepath = folder / f"{img.source.value}_{img.id}"
+        tasks.append(download_image(img.path, filepath))
 
-            # note: might need to be extracted if more sources need this
-            if not img.download_location:
-                continue
-            if img.source == Source.unsplash:
-                await session.get(
-                    img.download_location, params={"client_id": get_unsplash_key()}
-                )
+        # note: might need to be extracted if more sources need this
+        if not img.download_location:
+            continue
+        if img.source == Source.unsplash:
+            await session.get(
+                img.download_location, params={"client_id": get_unsplash_key()}
+            )
 
-        saved = await asyncio.gather(*tasks)
+    saved = await asyncio.gather(*tasks)
     return saved
 
 
@@ -56,6 +56,8 @@ async def run_source(source: Source, query: str, count: int):
     log_path = run_dir / "log.json"
     with open(log_path, "w") as file:
         json.dump([asdict(ref) for ref in results], file)
+
+    await close_session()
 
 
 @app.command()

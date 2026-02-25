@@ -1,7 +1,7 @@
 [project]
 name = "artref"
 version = "0.1.0"
-description = ""
+# description = ""
 requires-python = ">=3.7"
 dependencies = [
   "aiocache",
@@ -17,7 +17,7 @@ dependencies = [
 artref = "artref.main:main"
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "pytest-asyncio"]
 
 [build-system]
 requires = ["setuptools", "wheel"]
