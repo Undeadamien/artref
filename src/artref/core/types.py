@@ -21,10 +21,6 @@ class Reference:
     origin: Optional[str] = None  # note: original source (instagram, twitter,...)
     download_location: Optional[str] = None  # note: used by Unsplash to track downloads
 
-    # todo:
-    # - artist_id
-    # - artist_name
-
 
 @pydantic.dataclasses.dataclass
 class ImageResponse(Reference):

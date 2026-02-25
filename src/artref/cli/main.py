@@ -65,7 +65,7 @@ def scryfall(
     ],
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
-    """placeholder"""
+    """Search random illustrations from Scryfall."""
     asyncio.run(run_source(Source.scryfall, query, count))
 
 
@@ -74,16 +74,16 @@ def unsplash(
     query: Annotated[str, typer.Argument(help="A single search term: 'flower'")],
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
-    """placeholder"""
+    """Search random photos from Unsplash."""
     asyncio.run(run_source(Source.unsplash, query, count))
 
 
 @app.command()
 def wallhaven(
-    query: Annotated[str, typer.Argument(help="placeholder")],
+    query: Annotated[str, typer.Argument(help="A single tag: 'dragon'")],
     count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
 ):
-    """placeholder"""
+    """Search random illustrations from Wallhaven."""
     asyncio.run(run_source(Source.wallhaven, query, count))
 
 
