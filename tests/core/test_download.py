@@ -3,6 +3,7 @@ import pytest
 from artref.core.utils import download_image
 
 
+@pytest.mark.network
 @pytest.mark.asyncio
 async def test_download_image(tmp_path):
     url = "https://cards.scryfall.io/art_crop/front/c/4/c4195373-e902-4fc3-aead-1f6e728dbbae.jpg"
@@ -14,6 +15,7 @@ async def test_download_image(tmp_path):
     assert res.stat().st_size > 0
 
 
+@pytest.mark.network
 @pytest.mark.asyncio
 async def test_download_image_bad_url(tmp_path):
     url = "https://cards.scryfall.io/art_crop/bar_url"
