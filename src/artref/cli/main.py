@@ -1,83 +1,97 @@
 import asyncio
 import json
 import logging
-from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
-from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN, get_unsplash_key
+from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN
 from artref.core.logging import configure_logging
 from artref.core.main import fetch
-from artref.core.session import close_session, get_session
+from artref.core.session import close_session
 from artref.core.types import Reference, Source
-from artref.core.utils import download_image
+from artref.core.utils import download_image, serialize
 
 app = typer.Typer(no_args_is_help=True)
-configure_logging()
 logger = logging.getLogger(__name__)
+configure_logging()
+
+# todo: move these elsewhere
+CountOption = Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)]
+JsonOption = Annotated[
+    bool,
+    typer.Option(
+        "--json",
+        "-j",
+        help="Print the result as a json formatted output, instead of downloading",
+    ),
+]
 
 
 async def download_images(images: list[Reference], folder: Path):
-    session = await get_session()
     tasks = []
     for img in images:
         filepath = folder / f"{img.source.value}_{img.id}"
         tasks.append(download_image(img.path, filepath))
-    saved = await asyncio.gather(*tasks)
-    return saved
+    return await asyncio.gather(*tasks)
 
 
-async def run_source(source: Source, query: str, count: int):
-    timestamp = datetime.now().strftime("%y%m%d%H%M%S")
-    run_dir = Path.cwd() / f"artref_{timestamp}"
-    run_dir.mkdir(parents=True, exist_ok=True)
-
+async def run_source(source: Source, query: str, count: int, as_json: bool):
     results = await fetch(source, query, count)
-    typer.echo(f"Fetched {len(results)} image(s) from {source}")
-
     if not results:
         return
 
-    files = await download_images(results, run_dir)
-    typer.echo(f"Downloaded {len(files)} files to {run_dir}")
+    if as_json:
+        typer.echo(json.dumps([serialize(ref) for ref in results], indent=2))
+        return
+
+    timestamp = datetime.now().strftime("%y%m%d%H%M%S")
+    run_dir = Path.cwd() / f"artref_{timestamp}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    await download_images(results, run_dir)
 
     log_path = run_dir / "log.json"
     with open(log_path, "w") as file:
-        json.dump([asdict(ref) for ref in results], file)
+        json.dump([serialize(ref) for ref in results], file, indent=2)
 
-    await close_session()
+
+async def run(source: Source, query: str, count: int, as_json: bool):
+    try:
+        await run_source(source, query, count, as_json)
+    finally:
+        await close_session()
 
 
 @app.command()
 def scryfall(
-    query: Annotated[
-        str, typer.Argument(help="Syntax: 'https://scryfall.com/docs/syntax'")
-    ],
-    count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
+    query: Annotated[str, typer.Argument(help="'https://scryfall.com/docs/syntax'")],
+    count: CountOption = COUNT_DEFAULT,
+    as_json: JsonOption = False,
 ):
     """Search random illustrations from Scryfall."""
-    asyncio.run(run_source(Source.scryfall, query, count))
+    asyncio.run(run(Source.scryfall, query, count, as_json))
 
 
 @app.command()
 def unsplash(
     query: Annotated[str, typer.Argument(help="A single search term: 'flower'")],
-    count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
+    count: CountOption = COUNT_DEFAULT,
+    as_json: JsonOption = False,
 ):
     """Search random photos from Unsplash."""
-    asyncio.run(run_source(Source.unsplash, query, count))
+    asyncio.run(run(Source.unsplash, query, count, as_json))
 
 
 @app.command()
 def wallhaven(
     query: Annotated[str, typer.Argument(help="A single tag: 'dragon'")],
-    count: Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)] = COUNT_DEFAULT,
+    count: CountOption = COUNT_DEFAULT,
+    as_json: JsonOption = False,
 ):
     """Search random illustrations from Wallhaven."""
-    asyncio.run(run_source(Source.wallhaven, query, count))
+    asyncio.run(run(Source.wallhaven, query, count, as_json))
 
 
 def main():

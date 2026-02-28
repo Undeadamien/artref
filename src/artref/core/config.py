@@ -20,8 +20,6 @@ COUNT_DEFAULT = 3
 COUNT_MIN = 1
 COUNT_MAX = 10
 
-FILENAME_LOG = "artref.json"
-
 
 def get_unsplash_key() -> str:
     return require_env("UNSPLASH_KEY")

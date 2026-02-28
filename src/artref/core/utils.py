@@ -1,12 +1,14 @@
 import logging
 import mimetypes
 import os
+from dataclasses import asdict
 from pathlib import Path
 from typing import Optional
 
 import aiohttp
 
 from artref.core.session import get_session
+from artref.core.types import Reference
 
 logger = logging.getLogger(__name__)
 
@@ -33,3 +35,9 @@ def require_env(key: str) -> str:
     if value is None:
         raise RuntimeError(f"Missing env variable: {key}")
     return value
+
+
+def serialize(ref: Reference):
+    data = asdict(ref)
+    data["source"] = ref.source.value
+    return data
