@@ -73,14 +73,10 @@ Example API request:
 curl "http://127.0.0.1:8000/fetch?source=unsplash&query=example"
 ```
 
-> Using the **Unsplash API**, if you intend to download an image at `path`, please also make a request at `download_location`.  
-> For more information: [Unsplash API Guidelines](https://help.unsplash.com/en/articles/2511258-guideline-triggering-a-download)
-
 ## Roadmap
 
 - [ ] Add Docker support
 - [ ] Enhance error handling
-- [ ] Ensure Unsplash `download_location` is triggered correctly
 - [ ] Implement rate limiting and retry strategies
 - [ ] Improve documentation, removing the placeholders
 - [ ] Improve the API side

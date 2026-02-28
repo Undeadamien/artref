@@ -26,15 +26,6 @@ async def download_images(images: list[Reference], folder: Path):
     for img in images:
         filepath = folder / f"{img.source.value}_{img.id}"
         tasks.append(download_image(img.path, filepath))
-
-        # note: might need to be extracted if more sources need this
-        if not img.download_location:
-            continue
-        if img.source == Source.unsplash:
-            await session.get(
-                img.download_location, params={"client_id": get_unsplash_key()}
-            )
-
     saved = await asyncio.gather(*tasks)
     return saved
 

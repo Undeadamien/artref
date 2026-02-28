@@ -55,7 +55,6 @@ def test_unsplash_create_reference():
         {
             "id": "id",
             "urls": {"regular": "path"},
-            "links": {"download_location": "download_location"},
             "user": {"name": "artist"},
         }
     )
@@ -63,5 +62,4 @@ def test_unsplash_create_reference():
     assert reference.id == "id"
     assert reference.artist == "artist"
     assert reference.path == "path"
-    assert reference.download_location == "download_location"
     assert "" not in asdict(reference).values()

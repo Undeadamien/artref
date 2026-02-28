@@ -10,15 +10,12 @@ logger = logging.getLogger(__name__)
 route = f"{UNSPLASH_URL}/photos/random"
 
 
-# note: follow the API guide, must use the download_location for downloads
-# > https://help.unsplash.com/en/articles/2511245-unsplash-api-guidelines
 def _create_reference(data: dict) -> Reference:
     reference = Reference(
         Source.unsplash,
         data["id"],
         data["urls"]["regular"],
         artist=data.get("user", {}).get("name") or None,
-        download_location=data.get("links", {}).get("download_location") or None,
     )
     return reference
 
