@@ -73,9 +73,20 @@ Example API request:
 curl "http://127.0.0.1:8000/fetch?source=unsplash&query=example"
 ```
 
+## Docker Support
+
+Run the application using Docker:
+
+```bash
+# Build and start the API
+docker compose up
+```
+
+The API will be available at `http://localhost:8000`.
+
 ## Roadmap
 
-- [ ] Add Docker support
+- [x] Add Docker support
 - [ ] Enhance error handling
 - [ ] Implement rate limiting and retry strategies
 - [ ] Improve documentation, removing the placeholders
