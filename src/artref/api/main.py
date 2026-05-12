@@ -1,23 +1,22 @@
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime
+from pathlib import Path
 from typing import Annotated, List
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel, Field
 
-from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN
-from artref.core.main import fetch as core_fetch
+from artref.core.models import FetchParams as CoreFetchParams
+from artref.core.models import Reference, Source
+from artref.core.service import run_fetch
 from artref.core.session import close_session
-from artref.core.types import ImageResponse, Source
 
 logger = logging.getLogger(__name__)
 
 
-class FetchParams(BaseModel):
-    source: Source
-    query: str
-    count: int = Field(COUNT_DEFAULT, ge=COUNT_MIN, le=COUNT_MAX)
+class APIFetchParams(CoreFetchParams):
+    download: bool = False
 
 
 @asynccontextmanager
@@ -41,12 +40,17 @@ def list_sources():
 
 @app.get(
     "/fetch",
-    response_model=List[ImageResponse],
+    response_model=List[Reference],
     summary="Fetch images from a source",
     description="Fetch image references from the selected source",
 )
-async def fetch_images(params: Annotated[FetchParams, Query()]):
-    images = await core_fetch(params.source, params.query, params.count)
+async def fetch_images(params: Annotated[APIFetchParams, Query()]):
+    download_folder = None
+    if params.download:
+        timestamp = datetime.now().strftime("%y%m%d%H%M%S")
+        download_folder = Path.cwd() / f"artref_{timestamp}"
+
+    images = await run_fetch(params.source, params.query, params.count, download_folder)
     if not images:
         raise HTTPException(status_code=404, detail="No images found")
-    return [ImageResponse(**img.__dict__) for img in images]
+    return images

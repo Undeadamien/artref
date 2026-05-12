@@ -7,19 +7,19 @@ from typing import Annotated
 
 import typer
 
-from artref.core.config import COUNT_DEFAULT, COUNT_MAX, COUNT_MIN
+from artref.core.config import settings
 from artref.core.logging import configure_logging
-from artref.core.main import fetch
+from artref.core.models import Source
+from artref.core.service import run_fetch
 from artref.core.session import close_session
-from artref.core.types import Reference, Source
-from artref.core.utils import download_image, serialize
 
 app = typer.Typer(no_args_is_help=True)
 logger = logging.getLogger(__name__)
 configure_logging()
 
-# todo: move these elsewhere
-CountOption = Annotated[int, typer.Option(min=COUNT_MIN, max=COUNT_MAX)]
+CountOption = Annotated[
+    int, typer.Option(min=settings.count_min, max=settings.count_max)
+]
 JsonOption = Annotated[
     bool,
     typer.Option(
@@ -30,36 +30,22 @@ JsonOption = Annotated[
 ]
 
 
-async def download_images(images: list[Reference], folder: Path):
-    tasks = []
-    for img in images:
-        filepath = folder / f"{img.source.value}_{img.id}"
-        tasks.append(download_image(img.path, filepath))
-    return await asyncio.gather(*tasks)
-
-
-async def run_source(source: Source, query: str, count: int, as_json: bool):
-    results = await fetch(source, query, count)
-    if not results:
-        return
-
-    if as_json:
-        typer.echo(json.dumps([serialize(ref) for ref in results], indent=2))
-        return
-
-    timestamp = datetime.now().strftime("%y%m%d%H%M%S")
-    run_dir = Path.cwd() / f"artref_{timestamp}"
-    run_dir.mkdir(parents=True, exist_ok=True)
-    await download_images(results, run_dir)
-
-    log_path = run_dir / "log.json"
-    with open(log_path, "w") as file:
-        json.dump([serialize(ref) for ref in results], file, indent=2)
-
-
 async def run(source: Source, query: str, count: int, as_json: bool):
     try:
-        await run_source(source, query, count, as_json)
+        download_folder = None
+        if not as_json:
+            timestamp = datetime.now().strftime("%y%m%d%H%M%S")
+            download_folder = Path.cwd() / f"artref_{timestamp}"
+
+        results = await run_fetch(source, query, count, download_folder)
+
+        if not results:
+            return
+
+        if as_json:
+            typer.echo(
+                json.dumps([ref.model_dump(mode="json") for ref in results], indent=2)
+            )
     finally:
         await close_session()
 
@@ -67,7 +53,7 @@ async def run(source: Source, query: str, count: int, as_json: bool):
 @app.command()
 def scryfall(
     query: Annotated[str, typer.Argument(help="'https://scryfall.com/docs/syntax'")],
-    count: CountOption = COUNT_DEFAULT,
+    count: CountOption = settings.count_default,
     as_json: JsonOption = False,
 ):
     """Search random illustrations from Scryfall."""
@@ -77,7 +63,7 @@ def scryfall(
 @app.command()
 def unsplash(
     query: Annotated[str, typer.Argument(help="A single search term: 'flower'")],
-    count: CountOption = COUNT_DEFAULT,
+    count: CountOption = settings.count_default,
     as_json: JsonOption = False,
 ):
     """Search random photos from Unsplash."""
@@ -87,7 +73,7 @@ def unsplash(
 @app.command()
 def wallhaven(
     query: Annotated[str, typer.Argument(help="A single tag: 'dragon'")],
-    count: CountOption = COUNT_DEFAULT,
+    count: CountOption = settings.count_default,
     as_json: JsonOption = False,
 ):
     """Search random illustrations from Wallhaven."""

@@ -1,25 +1,35 @@
 from pathlib import Path
+from typing import Optional
 
-from dotenv import load_dotenv
-
-from artref.core.utils import require_env
-
-load_dotenv()
-
-SCRYFALL_URL = "https://api.scryfall.com"
-UNSPLASH_URL = "https://api.unsplash.com"
-WALLHAVEN_URL = "https://wallhaven.cc/api/v1"
-
-CACHE_DIR = Path.home() / ".cache" / "artref"
-CACHE_EXPIRE = 7 * 24 * 60 * 60  # 7 days
-
-SERVER_ADDR = "127.0.0.1"
-SERVER_PORT = 8000
-
-COUNT_DEFAULT = 3
-COUNT_MIN = 1
-COUNT_MAX = 10
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-def get_unsplash_key() -> str:
-    return require_env("UNSPLASH_KEY")
+class Settings(BaseSettings):
+    scryfall_url: str = "https://api.scryfall.com"
+    unsplash_url: str = "https://api.unsplash.com"
+    wallhaven_url: str = "https://wallhaven.cc/api/v1"
+
+    cache_dir: Path = Path.home() / ".cache" / "artref"
+    cache_expire: int = 7 * 24 * 60 * 60
+
+    server_addr: str = "127.0.0.1"
+    server_port: int = 8000
+
+    count_default: int = 3
+    count_min: int = 1
+    count_max: int = 10
+
+    unsplash_key: Optional[str] = Field(default=None, validation_alias="UNSPLASH_KEY")
+
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
+
+    def get_unsplash_key(self) -> str:
+        if not self.unsplash_key:
+            raise RuntimeError("Missing UNSPLASH_KEY")
+        return self.unsplash_key
+
+
+settings = Settings()

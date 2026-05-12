@@ -1,5 +1,5 @@
 from artref.core.main import FETCHES
-from artref.core.types import Source
+from artref.core.models import Source
 
 
 def test_validate_fetches():

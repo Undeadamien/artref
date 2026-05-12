@@ -1,29 +1,6 @@
-from dataclasses import dataclass
-from enum import Enum
-from typing import Awaitable, Optional, Protocol
+from typing import Awaitable, Protocol
 
-import pydantic
-
-
-class Source(str, Enum):
-    scryfall = "scryfall"
-    wallhaven = "wallhaven"
-    unsplash = "unsplash"
-
-
-@dataclass
-class Reference:
-    source: Source
-    id: str
-    path: str
-
-    artist: Optional[str] = None
-    origin: Optional[str] = None  # note: original source (instagram, twitter,...)
-
-
-@pydantic.dataclasses.dataclass
-class ImageResponse(Reference):
-    pass
+from artref.core.models import Reference
 
 
 class FetchFunction(Protocol):

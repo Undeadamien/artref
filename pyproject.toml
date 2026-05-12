@@ -1,14 +1,16 @@
 [project]
 name = "artref"
 version = "0.1.0"
-# description = ""
 requires-python = ">=3.7"
 dependencies = [
   "aiocache",
   "aiohttp",
+  "aiohttp-retry",
   "diskcache",
   "dotenv",
   "fastapi",
+  "pydantic",
+  "pydantic-settings",
   "typer",
   "uvicorn",
 ]

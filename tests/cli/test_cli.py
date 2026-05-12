@@ -8,13 +8,20 @@ from artref.cli.main import app
 runner = CliRunner()
 
 
-# todo: mock the response
-
-
 @pytest.mark.network
 @pytest.mark.parametrize(
     "source,query",
-    [("wallhaven", "guweiz"), ("scryfall", "artist:magali"), ("unsplash", "tree")],
+    [
+        ("wallhaven", "guweiz"),
+        ("scryfall", "artist:magali"),
+        pytest.param(
+            "unsplash",
+            "tree",
+            marks=pytest.mark.skipif(
+                not os.getenv("UNSPLASH_KEY"), reason="UNSPLASH_KEY not set"
+            ),
+        ),
+    ],
 )
 @pytest.mark.parametrize("count", [1, 2])
 def test_cmd_valid(tmp_path, source, query, count):
@@ -37,7 +44,17 @@ def test_cmd_valid(tmp_path, source, query, count):
 @pytest.mark.network
 @pytest.mark.parametrize(
     "source,query",
-    [("wallhaven", "guweiz"), ("scryfall", "artist:magali"), ("unsplash", "tree")],
+    [
+        ("wallhaven", "guweiz"),
+        ("scryfall", "artist:magali"),
+        pytest.param(
+            "unsplash",
+            "tree",
+            marks=pytest.mark.skipif(
+                not os.getenv("UNSPLASH_KEY"), reason="UNSPLASH_KEY not set"
+            ),
+        ),
+    ],
 )
 @pytest.mark.parametrize("count", [0, 999])
 def test_cmd_invalid(tmp_path, source, query, count):

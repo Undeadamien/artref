@@ -1,76 +1,61 @@
 import asyncio
 import logging
 import random
-from typing import cast
 
-import aiohttp
-import diskcache
-
-from artref.core.config import CACHE_DIR, CACHE_EXPIRE, SCRYFALL_URL
-from artref.core.session import get_session
-from artref.core.types import Reference, Source
+from artref.core.config import settings
+from artref.core.models import Reference, Source
+from artref.core.session import get_retry_client
 
 logger = logging.getLogger(__name__)
-cache = diskcache.Cache(CACHE_DIR)
-route_search = f"{SCRYFALL_URL}/cards/search"
-route_random = f"{SCRYFALL_URL}/cards/random"
+route_search = f"{settings.scryfall_url}/cards/search"
+route_random = f"{settings.scryfall_url}/cards/random"
 
 
-# todo: improve the way 'multi-faced' cards are handled
 def _create_reference(data: dict) -> Reference:
     if "image_uris" in data:
         return Reference(
-            Source.scryfall,
-            data["id"],
-            data.get("image_uris", {}).get("art_crop"),
+            source=Source.scryfall,
+            id=data["id"],
+            url=data.get("image_uris", {}).get("art_crop"),
             artist=data.get("artist") or None,
         )
     face = random.choice(data["card_faces"])
     return Reference(
-        Source.scryfall,
-        f"{data['id']}",
-        face.get("image_uris", {}).get("art_crop"),
+        source=Source.scryfall,
+        id=f"{data['id']}",
+        url=face.get("image_uris", {}).get("art_crop"),
         artist=face.get("artist") or data.get("artist") or None,
     )
 
 
 async def _fetch_search(params: dict):
-    key = str(params)
-    cached_results = await asyncio.to_thread(cache.get, key)
-    if cached_results:
-        return cast(dict, cached_results)  # note: silence the LSP
-
     try:
-        session = await get_session()
-        async with session.get(route_search, params=params) as res:
+        client = await get_retry_client()
+        async with client.get(route_search, params=params) as res:
             res.raise_for_status()
-            data = await res.json()
-            await asyncio.to_thread(cache.set, key, data, CACHE_EXPIRE)
-            return data
-    except aiohttp.ClientError as e:
-        logger.exception(e)
+            return await res.json()
+    except Exception:
+        logger.exception("Scryfall search failed")
         return None
 
 
 async def _fetch_random(params: dict):
     try:
-        session = await get_session()
-        async with session.get(route_random, params=params) as res:
+        client = await get_retry_client()
+        async with client.get(route_random, params=params) as res:
             res.raise_for_status()
-            data = await res.json()
-            return data
-    except aiohttp.ClientError as e:
-        logger.exception(e)
+            return await res.json()
+    except Exception:
+        logger.exception("Scryfall random fetch failed")
         return None
 
 
 async def fetch(query: str, count: int) -> list[Reference]:
     params = {"q": query, "unique": "art"}
-    results: list[Reference] = []
-
-    # note: check the first page to determine the strategy
+    
     first_page = await _fetch_search(params)
-    if not first_page:
+
+    if not first_page or "data" not in first_page:
         return []
 
     has_more = first_page["has_more"]
@@ -78,24 +63,29 @@ async def fetch(query: str, count: int) -> list[Reference]:
     if not has_more:
         seen = first_page["data"]
         seen = random.sample(seen, min(count, len(seen)))
-        images = [_create_reference(d) for d in seen]
-        images = [ref for ref in images if ref]
-        return images
+        return [_create_reference(d) for d in seen]
 
-    seen = set()
-    while len(seen) < count:
-        tasks = [_fetch_random(params) for _ in range(count - len(seen))]
-        batch = await asyncio.gather(*tasks)
+    results: list[Reference] = []
+    seen_ids = set()
+    
+    max_attempts = count * 2
+    attempts = 0
+    
+    while len(results) < count and attempts < max_attempts:
+        tasks = [_fetch_random(params) for _ in range(count - len(results))]
+        batch = await asyncio.gather(*tasks, return_exceptions=True)
 
         for data in batch:
-            if not data or data["id"] in seen:
+            attempts += 1
+            if isinstance(data, Exception) or not data:
                 continue
 
-            reference = _create_reference(data)
-            seen.add(data["id"])
+            if data["id"] in seen_ids:
+                continue
 
-            results.append(reference)
+            results.append(_create_reference(data))
+            seen_ids.add(data["id"])
             if len(results) >= count:
                 break
 
-    return results[:count]
+    return results

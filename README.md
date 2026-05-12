@@ -8,56 +8,44 @@ ArtRef centralizes this process, allowing you to quickly fetch, organize, and do
 
 ## Features
 
-- **Multi-source search**: Scryfall, Unsplash, Wallhaven
-- **Asynchronous**: Fast and efficient fetching
-- **CLI**: Typer for easy command-line usage
-- **API**: FastAPI server for programmatic access
-- **Disk caching**: Avoid repeated downloads
-- **Pluggable source system**: Add new image sources easily
+- **Pydantic V2**: Robust data validation and settings management.
+- **Asynchronous**: Fast and efficient fetching using `aiohttp`.
+- **Resilient**: Automatic retries with exponential backoff for API rate limits.
+- **CLI**: Typer for easy command-line usage.
+- **API**: FastAPI server with shared logic (fetching and optional downloading).
+- **Disk caching**: Integrated caching to avoid repeated API hits.
 
 ## Installation
 
-Install via pip:
-
 ```bash
-pip install .
+pip install -e .
 ```
 
 ## Configuration
 
-Optional .env (**Unsplash** only):
-
-```
-UNSPLASH_KEY=
-```
-
-Default config file:
+ArtRef uses Pydantic Settings. You can configure it via environment variables or a `.env` file:
 
 ```bash
-./src/artref/core/config.py
+# Required for Unsplash
+UNSPLASH_KEY=your_key_here
+
+# Optional overrides
+SCRYFALL_URL=https://api.scryfall.com
+SERVER_PORT=8000
 ```
 
 ## CLI Usage
 
-> The syntax of the `query` argument depends on the source.
-
 ```bash
-# Search 5 tree images on Unsplash
-artref unsplash "tree"
-
-# Search cards by artist on Scryfall
+# Fetch and download (default)
 artref scryfall "artist:magali"
 
-# Search images by Guweiz on Wallhaven
-artref wallhaven "guweiz"
+# Fetch and return JSON only (no download)
+artref wallhaven "guweiz" --json
 
-# Show help
-artref --help
-artref wallhaven --help
+# Limit results
+artref unsplash "forest" --count 5
 ```
-
-> Downloaded images will appear in the current working directory.  
-> Each source generates a log file with metadata: `artref_YYMMDDHHMMSS.json`
 
 ## API
 
@@ -67,11 +55,8 @@ Start the server:
 artref server
 ```
 
-Example API request:
-
-```bash
-curl "http://127.0.0.1:8000/fetch?source=unsplash&query=example"
-```
+The API documentation is available at `http://127.0.0.1:8000/docs`.  
+The `/fetch` endpoint supports an optional `download=true` parameter to trigger server-side downloading.
 
 ## Docker Support
 
