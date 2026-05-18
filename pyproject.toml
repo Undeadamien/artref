@@ -19,7 +19,17 @@ dependencies = [
 artref = "artref.main:main"
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-asyncio"]
+dev = [
+  "aiosqlite",
+  "black",
+  "coverage",
+  "httpx",
+  "isort",
+  "pyright",
+  "pytest",
+  "pytest-asyncio",
+  "pytest-cov",
+]
 
 [build-system]
 requires = ["setuptools", "wheel"]

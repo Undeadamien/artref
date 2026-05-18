@@ -19,7 +19,11 @@ def _create_reference(data: dict) -> Reference:
 
 async def fetch(query: str, count: int) -> list[Reference]:
     try:
-        params = {"query": query, "client_id": settings.get_unsplash_key(), "count": count}
+        params = {
+            "query": query,
+            "client_id": settings.get_unsplash_key(),
+            "count": count,
+        }
         client = await get_retry_client()
         async with client.get(route, params=params) as res:
             res.raise_for_status()

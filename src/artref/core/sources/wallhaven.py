@@ -39,7 +39,7 @@ async def fetch(query: str, count: int) -> list[Reference]:
         page_data = await _fetch_page({**params, "page": page})
         if not page_data or not page_data["data"]:
             break
-        
+
         data.extend(page_data["data"])
 
         meta = page_data.get("meta", {})

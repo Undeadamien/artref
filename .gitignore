@@ -5,6 +5,7 @@
 .env
 .pytest_cache
 .venv
+.coverage
 __pycache__
 build
 cache

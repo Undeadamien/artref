@@ -1,78 +1,41 @@
 # ArtRef
 
-**ArtRef** is an asynchronous Python tool for fetching, organizing, and downloading image references from multiple sources efficiently.
+![Python](https://img.shields.io/badge/PYTHON-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FASTAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Pydantic](https://img.shields.io/badge/PYDANTIC-E92063?style=for-the-badge&logo=pydantic&logoColor=white)
+![Docker](https://img.shields.io/badge/DOCKER-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Typer](https://img.shields.io/badge/Typer-000000?style=for-the-badge&logo=typer&logoColor=white)
+![aiohttp](https://img.shields.io/badge/aiohttp-2C5BB4?style=for-the-badge&logo=aiohttp&logoColor=white)
 
-**Motivation:**  
-Searching for image references across multiple platforms can be slow and repetitive.
-ArtRef centralizes this process, allowing you to quickly fetch, organize, and download images from multiple sources in a single workflow.
+Async image reference fetcher for Unsplash, Wallhaven, and Scryfall. Use it via CLI or API.
 
 ## Features
 
-- **Pydantic V2**: Robust data validation and settings management.
-- **Asynchronous**: Fast and efficient fetching using `aiohttp`.
-- **Resilient**: Automatic retries with exponential backoff for API rate limits.
-- **CLI**: Typer for easy command-line usage.
-- **API**: FastAPI server with shared logic (fetching and optional downloading).
-- **Disk caching**: Integrated caching to avoid repeated API hits.
+- Fetch from Unsplash, Wallhaven, and Scryfall
+- Async HTTP with retries and exponential backoff
+- CLI (Typer) and API (FastAPI) sharing the same core
+- In-memory caching via aiocache
+- Optional download to local folder with metadata log
+- Docker Compose
 
-## Installation
+## Quick Start
 
 ```bash
 pip install -e .
 ```
 
+- CLI: `artref --help`
+- API: `artref server`, docs at `http://localhost:8000/docs`
+
+## Testing
+
+```bash
+make test       # offline
+make test-all   # full suite
+```
+
+See `Makefile` for all available commands.
+
 ## Configuration
 
-ArtRef uses Pydantic Settings. You can configure it via environment variables or a `.env` file:
-
-```bash
-# Required for Unsplash
-UNSPLASH_KEY=your_key_here
-
-# Optional overrides
-SCRYFALL_URL=https://api.scryfall.com
-SERVER_PORT=8000
-```
-
-## CLI Usage
-
-```bash
-# Fetch and download (default)
-artref scryfall "artist:magali"
-
-# Fetch and return JSON only (no download)
-artref wallhaven "guweiz" --json
-
-# Limit results
-artref unsplash "forest" --count 5
-```
-
-## API
-
-Start the server:
-
-```bash
-artref server
-```
-
-The API documentation is available at `http://127.0.0.1:8000/docs`.  
-The `/fetch` endpoint supports an optional `download=true` parameter to trigger server-side downloading.
-
-## Docker Support
-
-Run the application using Docker:
-
-```bash
-# Build and start the API
-docker compose up
-```
-
-The API will be available at `http://localhost:8000`.
-
-## Roadmap
-
-- [x] Add Docker support
-- [ ] Enhance error handling
-- [ ] Implement rate limiting and retry strategies
-- [ ] Improve documentation, removing the placeholders
-- [ ] Improve the API side
+Set `UNSPLASH_KEY` in `.env` or environment (required for Unsplash only).

@@ -52,7 +52,7 @@ async def _fetch_random(params: dict):
 
 async def fetch(query: str, count: int) -> list[Reference]:
     params = {"q": query, "unique": "art"}
-    
+
     first_page = await _fetch_search(params)
 
     if not first_page or "data" not in first_page:
@@ -67,10 +67,10 @@ async def fetch(query: str, count: int) -> list[Reference]:
 
     results: list[Reference] = []
     seen_ids = set()
-    
+
     max_attempts = count * 2
     attempts = 0
-    
+
     while len(results) < count and attempts < max_attempts:
         tasks = [_fetch_random(params) for _ in range(count - len(results))]
         batch = await asyncio.gather(*tasks, return_exceptions=True)
