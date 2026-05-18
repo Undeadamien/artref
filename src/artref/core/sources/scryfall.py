@@ -77,7 +77,7 @@ async def fetch(query: str, count: int) -> list[Reference]:
 
         for data in batch:
             attempts += 1
-            if isinstance(data, Exception) or not data:
+            if isinstance(data, BaseException) or not data:
                 continue
 
             if data["id"] in seen_ids:
