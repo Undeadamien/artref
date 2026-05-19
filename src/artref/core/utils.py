@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import mimetypes
 from pathlib import Path
@@ -23,5 +24,5 @@ async def download_image(url: str, dst: Path) -> Optional[Path]:
         return None
     ext = mimetypes.guess_extension(mime) or ".jpg"
     dst = dst.with_suffix(ext)
-    dst.write_bytes(data)
+    await asyncio.to_thread(dst.write_bytes, data)
     return dst
