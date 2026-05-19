@@ -1,11 +1,13 @@
 *.egg-info
+*.jpg
 *.json
+*.png
 *.pyc
 *.sqlite
+.coverage
 .env
 .pytest_cache
 .venv
-.coverage
 __pycache__
 build
 cache

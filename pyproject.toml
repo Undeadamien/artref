@@ -6,8 +6,6 @@ dependencies = [
   "aiocache",
   "aiohttp",
   "aiohttp-retry",
-  "diskcache",
-  "dotenv",
   "fastapi",
   "pydantic",
   "pydantic-settings",

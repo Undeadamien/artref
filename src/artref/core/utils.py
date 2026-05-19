@@ -1,6 +1,5 @@
 import logging
 import mimetypes
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -26,10 +25,3 @@ async def download_image(url: str, dst: Path) -> Optional[Path]:
     dst = dst.with_suffix(ext)
     dst.write_bytes(data)
     return dst
-
-
-def require_env(key: str) -> str:
-    value = os.getenv(key)
-    if value is None:
-        raise RuntimeError(f"Missing env variable: {key}")
-    return value
