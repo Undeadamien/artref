@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     count_min: int = 1
     count_max: int = 10
 
+    logging_level: str = "WARNING"
+
     unsplash_key: Optional[str] = Field(default=None, validation_alias="UNSPLASH_KEY")
 
     model_config = SettingsConfigDict(

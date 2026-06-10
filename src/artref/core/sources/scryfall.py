@@ -80,7 +80,7 @@ async def fetch(query: str, count: int) -> list[Reference]:
             if isinstance(data, BaseException) or not data:
                 continue
 
-            if data["id"] in seen_ids:
+            if (card_id := data.get("id")) and card_id in seen_ids:
                 continue
 
             results.append(_create_reference(data))

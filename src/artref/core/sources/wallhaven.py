@@ -37,7 +37,7 @@ async def fetch(query: str, count: int) -> list[Reference]:
 
     while len(data) < count:
         page_data = await _fetch_page({**params, "page": page})
-        if not page_data or not page_data["data"]:
+        if not page_data or not page_data.get("data"):
             break
 
         data.extend(page_data["data"])
